@@ -1,0 +1,50 @@
+dir "C:\Users\sho_k\AppData\Roaming\npm\node_modules\
+npm -g install --save-dev --msvs_version=2015 electron-rebuild
+dir "C:\Users\sho_k\AppData\Roaming\npm\
+electron-rebuild --msvs_version=2015
+ls
+dir
+electron .
+y
+dir
+dir lib
+dir node_modules
+dir node_modules\cap
+npm install --msvs_version=2015 cap
+set npm_config_disturl=https://atom.io/download/atom-shell
+set npm_config_target=0.33.1
+set npm_config_arch=x64
+set npm_config_runtime=electron
+HOME=~/.electron-gyp npm install --msvs_version=2015 cap
+set HOME=~/.electron-gyp
+npm install --msvs_version=2015 cap
+dir C:\Users\sho_k\AppData\Roaming\npm
+dir C:\Users\sho_k\AppData\Roaming\npm\electron
+dir C:\Users\sho_k\AppData\Roaming\npm\electron\
+dir C:\Users\sho_k\AppData\Roaming\npm\node_modules
+electron .
+asar pack . ..\electron-pcap.asar
+electron ..\electron-pcap.asar
+electron .
+y
+npm list
+electron .
+y
+electron .
+npm -g install electron-packager --save-dev
+npm -g install electron-packager --save-dev --msvs_version=2015
+electron .
+history
+:history
+:h
+doskey /h
+.\node_modules\.bin\electron-rebuild
+npm install electron-prebuilt
+.\node_modules\.bin\electron-rebuild
+ls
+dir
+npm -g install electron-prebuilt --msvs_version=2015
+npm install cap --msvs_version=2015
+dir node_modules
+electron-rebuild
+dir "C:\Users\sho_k\AppData\Roaming\npm\

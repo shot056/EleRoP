@@ -1,0 +1,10 @@
+* {
+  font-family: 'MS UI Gothic, Meiryo UI, Yu Gothic UI';
+  font-size: '9px';
+}
+.error {
+  background-color: #FF0000;
+}
+.success {
+  background-color: #00FF00;
+}

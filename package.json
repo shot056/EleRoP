@@ -1,0 +1,19 @@
+{
+  "name": "electron-pcap",
+  "version": "1.0.0",
+  "description": "RO Packet Capture Tool by electron",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "shot056",
+  "license": "MIT",
+  "dependencies": {
+    "nan": "2.1.0",
+    "cap": "0.1.0",
+    "sprintf": "0.1.5"
+  },
+  "devDependencies": {
+    "electron-rebuild": "^1.0.2"
+  }
+}
