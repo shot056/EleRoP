@@ -15,7 +15,6 @@ set npm_config_disturl=https://atom.io/download/atom-shell
 set npm_config_target=0.33.1
 set npm_config_arch=x64
 set npm_config_runtime=electron
-HOME=~/.electron-gyp npm install --msvs_version=2015 cap
 set HOME=~/.electron-gyp
 npm install --msvs_version=2015 cap
 dir C:\Users\sho_k\AppData\Roaming\npm

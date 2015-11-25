@@ -1,5 +1,5 @@
 {
-  "name": "electron-pcap",
+  "name": "EleRoP",
   "version": "1.0.0",
   "description": "RO Packet Capture Tool by electron",
   "main": "main.js",
@@ -12,8 +12,5 @@
     "nan": "2.1.0",
     "cap": "0.1.0",
     "sprintf": "0.1.5"
-  },
-  "devDependencies": {
-    "electron-rebuild": "^1.0.2"
   }
 }
