@@ -7,6 +7,18 @@ var $ = jQuery = require('../lib/jquery-1.11.3.min.js');
 
 $( function() {
   var Capture = remote.require('./lib/capture');
+  var GRF     = remote.require('./lib/grfloader');
+
+  var map_name_table = {};
+  GRF.getTextFile( 'mapnametable.txt', function( err, data ) {
+    data.split(/\r?\n/).forEach( function( l ) {
+      if( l.length > 0 && !l.match(/^\/\//) ) {
+        var sp = l.split('#');
+        map_name_table[ sp[0] ] = sp[1];
+        map_name_table[ sp[0].replace(/\.rsw$/, '.gat') ] = sp[1];
+      }
+    } );
+  } );
   Capture.on( 'connected', function( tf, addr ) {
     $("#id_status").removeClass("error").addClass("success").empty().append( '接続中 (' + addr + ')' );
   } );
@@ -81,22 +93,52 @@ $( function() {
                                            { k: 'MapName', t: 'string', l: 16 },
                                            { k: 'MapIP',   l: 4,
                                              f: function( b ) {
-                                               return sprintf( '%d.%d.%d.%d', b[0], b[1], b[2], b[3] );
+                                               return sprintf( '%d.%d.%d.%d', b[3], b[2], b[1], b[0] );
                                              } },
                                            { k: 'MapPort', t: 'uint' } ] );
     charid = json.CharId;
-    $("#id_map").empty().append( sprintf('%s (%s:%d)', json.MapName, json.MapIP, json.MapPort ) );
+    $("#id_map").empty().append( sprintf('%s', map_name_table[ json.MapName ] || json.MapName ) );
     $("#id_charname").empty().append( charmap[ charid ].Name );
-    /*
-    ( function( buf ) {
-      var charid  = buf.slice( 0, 4 ).readUInt32LE();
-      var mapname = buf.slice( 4, 4 + 16 ).toString();
-      var mapip   = buf.slice( 4 + 16, 4 + 16 + 4 );
-      var mapport = buf.slice( 4 + 16 + 4, 4 + 16 + 4 + 2 ).readUInt16LE();
-      //console.log( "on packet:0071", { charid: charid, mapname: mapname, mapip: mapip, mapport: mapport } );
-      
-    } )( buf );
-    */
+  } );
+  /*
+    R 0086 <ID>.l <X_Y_X_Y>.5B <?>.B <server_tick>.l
+	移動情報
+  */
+  Capture.on( 'R0086', function( addr, port, len, buf ) {
+    var json = Capture.packet2json( buf, [ { k: 'id', t: 'ulong' },
+                                           { k: 'a', t: 'ushort' },
+                                           { k: 'b', t: 'ushort' },
+                                           { k: 'c', t: 'ushort' },
+                                           { k: 'd', t: 'ushort' },
+                                           { k: 'e', t: 'ushort' },
+                                           { k: '?', t: 'ushort' },
+                                           { k: 'tick', t: 'long' } ] );
+    console.log( JSON.stringify( { 'R0086': json } ) );
+  } );
+  /*
+    R 0087 <server tick>.l <X_Y_X_Y>.5B ?(0固定).B
+	移動応答
+  */
+  Capture.on( 'R0087', function( addr, port, len, buf ) {
+    console.log( { 'R0087': buf } );
+    var json = Capture.packet2json( buf, [ { k: 'tick', t: 'long' },
+                                           { k: 'a', t: 'ushort' },
+                                           { k: 'b', t: 'ushort' },
+                                           { k: 'c', t: 'ushort' },
+                                           { k: 'd', t: 'ushort' },
+                                           { k: 'e', t: 'ushort' },
+                                           { k: '?', t: 'ushort' } ] );
+    console.log( JSON.stringify( { 'R0087': json } ) );
+  } );
+  /*
+    R 0088 <ID>.l <X>.w <Y>.w
+	移動途中停止
+  */
+  Capture.on( 'R0088', function( addr, port, len, buf ) {
+    var json = Capture.packet2json( buf, [ { k: 'id', t: 'ulong' },
+                                           { k: 'x',  t: 'ushort' },
+                                           { k: 'y',  t: 'ushort' } ] );
+    console.log( JSON.stringify( { 'R0088': json } ) );
   } );
   if( Capture.is_connected )
     $("#id_status").removeClass("error").addClass("success").empty().append( '接続中 (' + Capture.capture_addr + ')' );
