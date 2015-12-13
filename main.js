@@ -3,7 +3,7 @@
 var app           = require('app');
 var BrowserWindow = require('browser-window');
 var Menu          = require('menu');
-var dialog        = require('dialog');
+var fs            = require('fs');
 
 var Capture = require('./lib/capture');
 var Config  = require('./lib/config');
@@ -32,52 +32,49 @@ app.on( 'ready', function() {
   mainWindow.on('closed', function() {
     mainWindow = null;
   } );
-  Capture.init( function( err ) {
-    if( err ) throw err;
-    Config.load( function( err ) {
+  loadPlugins( function( err, plugins ) {
+    Capture.init( function( err ) {
       if( err ) throw err;
-      var is_config_ok = true;
-      if( Config.get("is_default") ) {
-        is_config_ok = false;
-        dialog.showErrorBox( 'エラー', '初期設定を行ってください' );
-        cb();
-      } else {
-        if( !Config.get( "device" ) ) {
-          is_config_ok = false;
-          dialog.showErrorBox( 'エラー', 'キャプチャするデバイスを選択してください。' );
-        }
-        if( !Config.get("ro-path" ) ) {
-          is_config_ok = false;
-          dialog.showErrorBox( 'エラー', 'ROのインストール先を選択してください。' );
-        }
-        if( is_config_ok )
-          Grf.init( Config.get("ro-path") + "\\data.grf", function( err ) {
-            if( err ) {
-              is_config_ok = false;
-              dialog.showErrorBox( 'エラー', 'ROのインストール先を選択してください。' );
-            }
-            cb();
-          } );
-        else
-          cb();
-      }
-      
-      function cb() {
-        if( !is_config_ok ) {
-          var configWindow = new BrowserWindow( { width: 800, height: 600, resizable: false, autoHideMenuBar: true } );
-          configWindow.loadURL( 'file://' + __dirname + '/pages/config/index.html' );
-          configWindow.on( 'closed', function() {
-            configWindow = null;
-          } );
-          configWindow.show();
-        }
+      Config.init( plugins, function( err, is_config_ok ) {
+        if( !is_config_ok )
+          Config.show();
         else
           Capture.startCapture( Config.get( "device" ) );
-      }
+      } );
     } );
   } );
 } );
 
+function loadPlugins( cb ) {
+  fs.readdir( __dirname + '/plugins/', function( err, names ) {
+    if( err ) return cb( err );
+    Promise.all( names.map( function( name ) {
+      return new Promise( function( resolve, reject ) {
+        fs.stat( __dirname + '/plugins/' + name, function( err, b_stats ) {
+          if( err ) return reject( err );
+          if( b_stats.isDirectory() )
+            fs.stat( __dirname + '/plugins/' + name + '/index.js', function( err, i_stats ) {
+              if( err ) return reject( err );
+              if( i_stats.isFile() )
+                return resolve( require( __dirname + '/plugins/' + name + '/index.js' ) );
+              else
+                return resolve();
+            } );
+          else
+            return resolve();
+        } );
+      } );
+    } ) ).then( function( results ) {
+      var plugins = {};
+      results.forEach( function( x, i ) {
+        plugins[ x.id ] = x;
+      } );
+      return cb( null, plugins );
+    } ).catch( function( err ) {
+      return cb( err );
+    } );
+  } );
+}
 
 var menuConfig = [
   {
